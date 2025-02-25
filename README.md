@@ -39,7 +39,7 @@ The Indian Tax Assistant helps users calculate and compare tax liabilities under
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/MahathiVanga/tax-assistant.git
 cd Indian-Tax-Assistant
 ```
 
