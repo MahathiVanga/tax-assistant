@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Calculation Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tax Calculation Results</h1>
+        </header>
+        
+        <main class="results">
+            {% set recommended = result.recommended_regime %}
+            
+            <!-- Recommended Tax Regime Section -->
+            <div class="recommendation">
+                <h2>Recommended Tax Regime</h2>
+                <div class="recommend-card">
+                    <h3>{{ result[recommended].regime }}</h3>
+                    <p>Tax Liability: ₹{{ "%.2f"|format(result[recommended].tax_liability) }}</p>
+                    <div class="savings">
+                        {% if recommended == "new_regime" %}
+                            {% set savings = result.old_regime.tax_liability - result.new_regime.tax_liability %}
+                            <p>You save ₹{{ "%.2f"|format(savings) }} with the New Regime</p>
+                        {% else %}
+                            {% set savings = result.new_regime.tax_liability - result.old_regime.tax_liability %}
+                            <p>You save ₹{{ "%.2f"|format(savings) }} with the Old Regime</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tax Regime Comparison Section -->
+            <div class="comparison">
+                <h2>Tax Regime Comparison</h2>
+                <div class="regime-cards">
+                    <div class="result-card {% if recommended == 'new_regime' %}recommended{% endif %}">
+                        <h3>New Tax Regime</h3>
+                        <div class="result-item">
+                            <span>Gross Income:</span>
+                            <span>₹{{ "%.2f"|format(result.new_regime.gross_income) }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Standard Deduction:</span>
+                            <span>₹{{ "%.2f"|format(result.new_regime.standard_deduction) }}</span>
+                        </div>
+                        <div class="result-item highlight">
+                            <span>Taxable Income:</span>
+                            <span>₹{{ "%.2f"|format(result.new_regime.taxable_income) }}</span>
+                        </div>
+                        <div class="result-item highlight">
+                            <span>Tax Liability:</span>
+                            <span>₹{{ "%.2f"|format(result.new_regime.tax_liability) }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Effective Tax Rate:</span>
+                            <span>{{ "%.2f"|format(result.new_regime.effective_tax_rate) }}%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="result-card {% if recommended == 'old_regime' %}recommended{% endif %}">
+                        <h3>Old Tax Regime</h3>
+                        <div class="result-item">
+                            <span>Gross Income:</span>
+                            <span>₹{{ "%.2f"|format(result.old_regime.gross_income) }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Standard Deduction:</span>
+                            <span>₹{{ "%.2f"|format(result.old_regime.standard_deduction) }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Additional Deductions:</span>
+                            <span>₹{{ "%.2f"|format(result.old_regime.additional_deductions) }}</span>
+                        </div>
+                        <div class="result-item highlight">
+                            <span>Taxable Income:</span>
+                            <span>₹{{ "%.2f"|format(result.old_regime.taxable_income) }}</span>
+                        </div>
+                        <div class="result-item highlight">
+                            <span>Tax Liability:</span>
+                            <span>₹{{ "%.2f"|format(result.old_regime.tax_liability) }}</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Effective Tax Rate:</span>
+                            <span>{{ "%.2f"|format(result.old_regime.effective_tax_rate) }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Deductions List (Old Regime) -->
+            {% if result.old_regime.deductions_list|length > 1 %}
+            <div class="result-card">
+                <h2>Deductions Applied (Old Regime)</h2>
+                <ul class="deductions-list">
+                    {% for deduction in result.old_regime.deductions_list %}
+                    <li>{{ deduction }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- AI-Powered Insights -->
+            <div class="ai-insights">
+                <h2>AI-Powered Insights</h2>
+                <p>{{ result.ai_insights }}</p>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="actions">
+                <button onclick="window.location.href='/'" class="btn">Calculate Another</button>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Note: This is a simplified tax calculator for educational purposes only. Consult a tax professional for actual tax advice.</p>
+            <p>Tax rates based on FY 2023-24 (AY 2024-25)</p>
+        </footer>
+    </div>
+    
+    <!-- JavaScript for Animations and Interactivity -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultCards = document.querySelectorAll('.result-card');
+            
+            // Staggered Fade-In Animation
+            resultCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    }, 100);
+                }, index * 150);
+            });
+            
+            // Hover Effects
+            resultCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('recommended')) {
+                        this.style.boxShadow = '0 10px 30px rgba(255, 255, 255, 0.1)';
+                        this.style.transform = 'translateY(-5px)';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('recommended')) {
+                        this.style.boxShadow = '0 5px 15px rgba(255, 255, 255, 0.05)';
+                        this.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
